@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  APPLE
+  FACEBOOK
+}
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+}
+enum DeviceType {
+  WEB
+  ANDROID
+  IOS
+}
+enum OTPChannel {
+  EMAIL
+  SMS
+}
+enum OTPPurpose {
+  REGISTER
+  LOGIN
+  VERIFY_EMAIL
+  VERIFY_PHONE
+  RESET_PASSWORD
+}
+model UserAuth {
+  id                  String          @id @default(uuid())
+  email               String?         @unique
+  phone               String?         @unique
+  passwordHash        String?
+  provider            AuthProvider    @default(LOCAL)
+  providerUserId      String?
+  isEmailVerified     Boolean         @default(false)
+  isPhoneVerified     Boolean         @default(false)
+  isActive            Boolean         @default(true)
+  status              UserStatus      @default(ACTIVE)
+  lastLoginAt         DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  sessions            Session[]
+  devices             Device[]
+  otpCodes            Otp[]
+  loginAudits         LoginAudit[]
+  @@unique([provider, providerUserId])
+  @@index([provider])
+}
+
+model Session {
+  id                  String      @id @default(uuid())
+  userId              String
+  refreshTokenHash    String
+  expiresAt            DateTime
+  revoked              Boolean     @default(false)
+  ipAddress            String?
+  userAgent            String?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  user                UserAuth    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Device {
+  id                String        @id @default(uuid())
+  userId            String
+  deviceName        String?
+  deviceType        DeviceType
+  deviceToken       String?
+  os                String?
+  browser           String?
+  appVersion        String?
+  lastSeenAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              UserAuth      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([deviceToken])
+}
+
+model Otp {
+  id              String          @id @default(uuid())
+  userId          String
+  codeHash        String
+  channel         OTPChannel
+  purpose         OTPPurpose
+  expiresAt       DateTime
+  consumed        Boolean         @default(false)
+  attempts        Int             @default(0)
+  createdAt       DateTime        @default(now())
+  user            UserAuth        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([purpose])
+  @@map("OTP")
+}
+
+model LoginAudit {
+  id              String        @id @default(uuid())
+  userId          String?
+  email           String?
+  success         Boolean
+  ipAddress       String?
+  userAgent       String?
+  failureReason   String?
+  createdAt       DateTime      @default(now())
+  user            UserAuth?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([userId])
+  @@index([createdAt])
+}
