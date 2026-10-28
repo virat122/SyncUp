@@ -4,7 +4,7 @@ import app from './app.js';
 import env from './config/env.js';
 import baseLogger from "./lib/logger.js";
 
-const logger = baseLogger.child({ component: "Server" });
+const logger = baseLogger.child({ component: "ServerFile" });
 
 export function startServer(port = env.port, host = '0.0.0.0', maxAttempts = 10) {
     return new Promise((resolve, reject) => {

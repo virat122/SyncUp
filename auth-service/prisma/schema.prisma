@@ -33,6 +33,7 @@ enum OTPPurpose {
   VERIFY_PHONE
   RESET_PASSWORD
 }
+
 model UserAuth {
   id                  String          @id @default(uuid())
   email               String?         @unique
@@ -116,4 +117,25 @@ model LoginAudit {
   user            UserAuth?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   @@index([userId])
   @@index([createdAt])
+}
+
+model PendingRegistration {
+  id            String       @id @default(uuid())
+  email         String?
+  phone         String?
+  passwordHash  String
+  otpCodeHash   String
+  channel       OTPChannel
+  purpose       OTPPurpose   @default(REGISTER)
+  attempts      Int          @default(0)
+  resendCount   Int          @default(0)
+  lastSentAt    DateTime     @default(now())
+  expiresAt     DateTime
+  consumed      Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([email])
+  @@index([phone])
+  @@index([expiresAt])
 }

@@ -7,7 +7,7 @@ import errorHandler from "./middleware/error.middleware.js";
 import requestIdMiddleware from "./middleware/requestId.middleware.js";
 import baseLogger from "./lib/logger.js";
 
-const logger = baseLogger.child({ component: "App" });
+const logger = baseLogger.child({ component: "AppFile" });
 
 const app = express();
 

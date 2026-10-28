@@ -1,4 +1,7 @@
 {
+  "name" : "SyncUp",
+  "version": "1.0.0",
+  "Sync Version": "1.0.0",
   "dependencies": {
     "uuid": "^14.0.1"
   }

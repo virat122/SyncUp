@@ -1,4 +1,4 @@
-import * as AuthModel from "../models/auth.model.js";
+import * as AuthModel from "../repository/auth.repository.js";
 import * as OtpService from "../services/otp.service.js";
 import baseLogger from "../lib/logger.js";
 import { BadRequestError, ConflictError, UnauthorizedError } from "../errors/index.js";
